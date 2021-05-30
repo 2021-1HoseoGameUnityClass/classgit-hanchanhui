@@ -101,6 +101,7 @@ public class Player : MonoBehaviour
 
     private void Fire()
     {
+        GetComponent<AudioSource>().Play();
         //방향값 선언
         float direction = transform.localScale.x;
         Quaternion quaternion = new Quaternion(0, 0, 0, 0);
