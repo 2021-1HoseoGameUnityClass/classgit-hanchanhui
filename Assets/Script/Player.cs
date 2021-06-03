@@ -20,12 +20,18 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject InstantiateObj = null;
 
+    private bool move = false;
+    private float moveHorizontal = 0;
 
 
     void Update()
     {
-        //이동관련 함수
-        Move();
+        if(move == true)
+        {
+            //이동관련 함수
+            Move();
+        }
+        
 
         // 점프키를 누르면 점프
         if (Input.GetButtonDown("Jump"))
@@ -43,8 +49,8 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-        float h = Input.GetAxis("Horizontal");
-        
+        //float h = Input.GetAxis("Horizontal");
+        float h = moveHorizontal;
         Vector3 vector3 = new Vector3();
         //x 축의 값을 인풋 값 + 플레이어스피드 * 시간값으로 바꾼다.
         float moveSpeed = h * playerSpeed * Time.deltaTime;
@@ -97,10 +103,23 @@ public class Player : MonoBehaviour
             GetComponent<Animator>().SetBool("isJump", false);
             jump = false;
         }
+        //충돌체위 콜라이더가 플렛폼 태그라면
+        if (collision.collider.tag == "Enemy")
+        {
+            DataManager.instance.playerHP -= 1;
+            if(DataManager.instance.playerHP < 0)
+            {
+                DataManager.instance.playerHP = 0;
+            }
+            UIManager.instance.PlayerHP();
+        }
     }
 
     private void Fire()
     {
+        
+        AudioClip audioClip = Resources.Load<AudioClip>("RangedAttack") as AudioClip;
+        GetComponent<AudioSource>().clip = audioClip;
         GetComponent<AudioSource>().Play();
         //방향값 선언
         float direction = transform.localScale.x;
@@ -109,4 +128,33 @@ public class Player : MonoBehaviour
         Instantiate(bulletObj, InstantiateObj.transform.position, quaternion).GetComponent<Bullet>().InstantiateBullet(direction);
 
     }
+
+    public void OnMove(bool _right)
+    {
+        if (_right)
+        {
+            moveHorizontal = 1;
+        }
+        else
+        {
+            moveHorizontal = -1;
+        }
+        move = true;
+    }
+
+    public void OffMove()
+    {
+        moveHorizontal = 0;
+        move = false;
+    }
+    /*
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        //충돌체위 콜라이더가 플렛폼 태그라면
+        if (collision.collider.tag == "Enemy")
+        {
+            DataManager.instance.playerHP -= 1;
+            UIManager.instance.PlayerHP();
+        }
+    }*/
 }
